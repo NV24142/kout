@@ -1113,7 +1113,7 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
       <div class="row" style="width:100%"><button class="btn grow" id="meEdit">تعديل الملف</button><button class="btn grow" id="meSwitch">تسجيل الخروج</button></div>
     </div>
     <form class="panel" id="meLink" novalidate hidden>
-      <h3>اربط حسابك بإيميل</h3>
+      <h3 id="lkTitle">اربط حسابك بإيميل</h3>
       <p class="small" id="lkNote">حسابك الحالي بدون إيميل. اربطه حتى تدخل به بالإيميل وكلمة المرور ولا يضيع تقدّمك.</p>
       <input class="txt" id="lkEmail" type="email" autocomplete="email" dir="ltr" placeholder="name@example.com">
       <div class="pwrow"><input class="txt" id="lkPass" type="password" autocomplete="new-password" dir="ltr" placeholder="كلمة المرور"><button type="button" data-eye="lkPass">إظهار</button></div>
@@ -2214,7 +2214,7 @@ function friendRow(f,uid,acts){
   const a=el('span','acts'); for(const [t,cls,fn] of acts){ const b=el('button','btn sm'+(cls?' '+cls:''),t); b.type='button'; b.onclick=fn; a.appendChild(b); } r.appendChild(a); return r;
 }
 function renderFriends(fetch){
-  const on=socialOn(); if(!on) loadLeaders(); $('#frOff').hidden=on; if(!on&&A&&!A.email){ $('#frOff').querySelector('h3').textContent='الأصدقاء للحسابات المسجّلة'; $('#frOff').querySelector('p').textContent='أنت تلعب كضيف. اربط حسابك بإيميل من «ملفي» حتى تضيف أصدقاء وتدعوهم. وتقدر الحين تلعب مع أي أحد برابط الغرفة.'; } $('#frOn').hidden=!on; $('#frOn').style.display=on?'grid':'none'; if(!on){ $('#frCount').textContent=''; return; }
+  const on=socialOn(); if(!on) loadLeaders(); $('#frOff').hidden=on; if(!on&&A&&(!A.email||(CLOUD.on&&!A.cloud))){ $('#frOff').querySelector('h3').textContent='الأصدقاء للحسابات المسجّلة'; $('#frOff').querySelector('p').textContent=CLOUD.on?'حسابك الحالي محفوظ في هذا المتصفح فقط. افتح «ملفي» واضغط «انقل حسابي للسحابة» (تقدّمك ينتقل معك)، أو سجّل خروج وادخل بحساب سحابي.':'أنت تلعب كضيف. اربط حسابك بإيميل من «ملفي» حتى تضيف أصدقاء وتدعوهم. وتقدر الحين تلعب مع أي أحد برابط الغرفة.'; } $('#frOn').hidden=!on; $('#frOn').style.display=on?'grid':'none'; if(!on){ $('#frCount').textContent=''; return; }
   $('#frMyCode').textContent=A.fcode||'------';
   const rq=$('#frReqs'); rq.textContent=''; $('#frReqP').hidden=!SOC.reqs.length;
   for(const m of SOC.reqs) rq.appendChild(friendRow({name:m.name,col:m.col,ch:m.ch,fr:m.fr,lvl:m.lvl},m.from,[['قبول','gold',()=>acceptReq(m)],['رفض','',()=>{ inboxDel(m.id); }]]));
@@ -2343,7 +2343,7 @@ $('#inForgot').onclick=async()=>{
 };
 // link an old local account to email
 $('#meLink').addEventListener('submit',async e=>{
-  e.preventDefault(); if(!A||A.email) return;
+  e.preventDefault(); if(!A||A.cloud||(A.email&&!CLOUD.on)) return;
   const email=$('#lkEmail').value.trim().toLowerCase(), pass=$('#lkPass').value;
   if(!validEmail(email)){ toast('اكتب إيميلاً صحيحاً'); return; }
   if(pass.length<6){ toast('كلمة المرور ٦ أحرف على الأقل'); return; }
@@ -2495,7 +2495,8 @@ function equip(type,id,fromCustom){
 function renderMe(){
   if(!A) return; updateCoinUI();
   const w=$('#meAvWrap'); w.className='avwrap'+(A.eq.frame!=='none'?' fr-'+A.eq.frame:''); setAvatar($('#meAv'),A.name,A.col,A.img,A.eq.char);
-  $('#meName').textContent=A.name; $('#meTitle').textContent=titleName(A.eq.title); $('#meTitle').classList.toggle('founder',A.eq.title==='t_founder'); renderFounder(); $('#meEmail').textContent=A.email||(A.guest?'حساب ضيف':'حساب بدون إيميل'); $('#meLink').hidden=!!A.email; $('#lkNote').textContent=A.guest?'أنت تلعب كضيف. اربط حسابك بإيميل وكلمة مرور حتى لا يضيع تقدّمك، وتدخل به من أي جهاز، وتضيف أصدقاء.':'حسابك الحالي بدون إيميل. اربطه حتى تدخل به بالإيميل وكلمة المرور ولا يضيع تقدّمك.';
+  $('#meName').textContent=A.name; $('#meTitle').textContent=titleName(A.eq.title); $('#meTitle').classList.toggle('founder',A.eq.title==='t_founder'); renderFounder(); $('#meEmail').textContent=A.email||(A.guest?'حساب ضيف':'حساب بدون إيميل'); const toCloud=CLOUD.on&&!A.cloud; $('#meLink').hidden=!(!A.email||toCloud); $('#lkTitle').textContent=toCloud?'انقل حسابك للسحابة':'اربط حسابك بإيميل'; $('#lkGo').textContent=toCloud?'انقل حسابي للسحابة':'اربط الحساب'; if(toCloud&&A.email&&!$('#lkEmail').value) $('#lkEmail').value=A.email;
+  $('#lkNote').textContent=toCloud?'حسابك الحالي محفوظ في هذا المتصفح فقط. انقله للسحابة بإيميل وكلمة مرور حتى تدخل به من أي جهاز وتضيف أصدقاء، وكل تقدّمك (العملات والمستوى والمشتريات) ينتقل معك.':A.guest?'أنت تلعب كضيف. اربط حسابك بإيميل وكلمة مرور حتى لا يضيع تقدّمك، وتدخل به من أي جهاز، وتضيف أصدقاء.':'حسابك الحالي بدون إيميل. اربطه حتى تدخل به بالإيميل وكلمة المرور ولا يضيع تقدّمك.';
   const lv=levelOf(A.xp); $('#meLvl').textContent='المستوى '+lv.l; $('#meXp').textContent=`${lv.into} / ${lv.need} خبرة`; $('#meBar').style.width=(lv.into/lv.need*100)+'%';
   const S=A.stats, rate=S.games?Math.round(S.wins/S.games*100):0;
   const st=$('#meStats'); st.textContent='';
