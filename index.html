@@ -1309,7 +1309,7 @@ function newRoom(cfg,code){
 }
 function mkBot(){
   const used=new Set(R.seats.filter(Boolean).map(s=>s.name));
-  const ch=pick(CHARS.map(c=>c.id)), fem=FAM[ch.split('_')[0]].g==='f';
+  const ch=pick(CHARS.filter(c=>!c.hide).map(c=>c.id)), fem=FAM[ch.split('_')[0]].g==='f';
   const names=fem?['نورة','مريم','دانة','لطيفة','شيخة','حصة','منيرة','فاطمة']:BOT_NAMES;
   const name=names.find(n=>!used.has(n))||'روبوت';
   const usedC=new Set(R.seats.filter(Boolean).map(s=>s.col));
@@ -1897,6 +1897,7 @@ const FAM={
   lulu:{n:'اللؤلؤ',g:'f',shay:'#5b2141',trim:'#e3b766',cloth:'#5b2141',dress:'#e3b766',p:700,r:1},
   souq:{n:'السوق',g:'m',head:'shemagh',cloth:'#e9e1cf',bisht:'#5a3a22',p:900,r:2},
   dhahab:{n:'الذهب',g:'m',head:'gold',cloth:'#f4f1ea',bisht:'#141010',pp:20,r:3},
+  muasses:{n:'المؤسس',g:'m',head:'gold',cloth:'#fbf7ee',bisht:'#3a1466',p:-1,r:3,crown:1,shades:1,bg:'#5b2a9e',hide:1},
 };
 const AGE_N={m:{kid:'صغير',young:'شاب',adult:'كبير',elder:'شايب'},f:{kid:'صغيرة',young:'شابة',adult:'كبيرة',elder:'جدّة'}};
 const CHAR_ROWS=[
@@ -1905,9 +1906,10 @@ const CHAR_ROWS=[
   ['bahar','kid','حمود','#c48a5c'],['bahar','young','الغوّاص','#a87048'],['bahar','adult','النوخذة','#8e5a3a'],['bahar','elder','بو مبارك','#a87048'],
   ['lulu','kid','لولوة','#e3b48c'],['lulu','young','مريم','#d6a27a'],['lulu','adult','أم ناصر','#b98058'],['lulu','elder','الجدّة لولوة','#e2b48c'],
   ['souq','kid','ناصر','#d9a77a'],['souq','young','فيصل','#c18b60'],['souq','adult','التاجر','#b98058'],['souq','elder','كبير التجار','#c99467'],
+  ['muasses','adult','المؤسس','#c99265'],
   ['dhahab','kid','غيث','#e3b48c'],['dhahab','young','راكان','#c99265'],['dhahab','adult','بو راشد','#b98058'],['dhahab','elder','الشيخ الذهبي','#c99467'],
 ];
-const CHARS=CHAR_ROWS.map(([fam,age,n,skin])=>{ const F=FAM[fam]; const c={id:fam+'_'+age,n,fam,age,skin,r:F.r,sub:F.n+' · '+AGE_N[F.g][age]}; if(F.pp){ c.p=-1; c.pp=F.pp+(age==='elder'?10:age==='adult'?5:0); } else c.p=F.p; return c; });
+const CHARS=CHAR_ROWS.map(([fam,age,n,skin])=>{ const F=FAM[fam]; const c={id:fam+'_'+age,n,fam,age,skin,r:F.r,sub:F.hide?'خاصة بالمؤسس':F.n+' · '+AGE_N[F.g][age]}; if(F.hide) c.hide=1; if(F.pp){ c.p=-1; c.pp=F.pp+(age==='elder'?10:age==='adult'?5:0); } else c.p=F.p; return c; });
 const OLD_CHAR={bosaleh:'fareej_elder',jassim:'fareej_young',noura:'bait_young',nokhatha:'bahar_adult',captain:'bahar_kid',umkhalid:'bait_adult',tajer:'souq_adult',sheikh:'dhahab_elder'};
 function charSVG(id,mood,bg){
   const C=CHARS.find(c=>c.id===id)||CHARS[3], F=FAM[C.fam], age=C.age, kid=age==='kid', old=age==='elder', fem=F.g==='f';
@@ -1968,6 +1970,11 @@ function charSVG(id,mood,bg){
   if(fem&&kid){ R(fx-1,fy-2,fw+2,3,'#241811'); R(fx-1,fy+1,1,5,'#241811'); R(fx+fw,fy+1,1,5,'#241811'); R(fx-2,fy+5,1,6,'#241811'); R(fx+fw+1,fy+5,1,6,'#241811'); P(fx-2,fy+11,F.dress); P(fx+fw+1,fy+11,F.dress); R(fx+fw-2,fy-3,3,2,F.dress); P(fx+fw-1,fy-3,'#ffffff'); }
   // glasses for elders
   if(old){ const gc='#3a2a1a'; for(const x of [e1-1,e2-1]){ R(x,ey-2,3,1,gc); R(x,ey+1,3,1,gc); P(x-1,ey-1,gc); P(x-1,ey,gc); P(x+3,ey-1,gc); P(x+3,ey,gc); } P(mx-1,ey-1,gc); P(mx,ey-1,gc); }
+  if(F.shades){ const sc='#15131a'; for(const x of [e1-2,e2-1]){ R(x,ey-1,4,2,sc); P(x+1,ey-1,'#5a5378'); } R(e1+2,ey-1,e2-e1-3,1,'#e3b766'); }
+  if(F.crown){ const g1='#f5cd4e', g2='#a8761f', mid=fx+Math.floor(fw/2); R(fx-1,fy-3,fw+2,2,g1); R(fx-1,fy-2,fw+2,1,g2);
+    for(const x of [fx-1,fx+1,mid-1,mid,fx+fw-2,fx+fw]) P(x,fy-4,g1); P(mid-1,fy-4,'#e45b4f'); P(mid,fy-4,'#e45b4f'); P(fx+1,fy-3,'#62c9c1'); P(fx+fw-2,fy-3,'#62c9c1');
+    R(bx+3,bodyTop+2,1,N,'#f5cd4e'); R(bx+bw-4,bodyTop+2,1,N,'#f5cd4e'); }
+  if(F.bg) bg=F.bg;
   // render
   const top=lighten(bg,.18), bot=darken(bg,.25);
   let out=`<svg viewBox="2 2.5 20 20" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" fill="${bot}"/><rect width="24" height="12" fill="${top}"/>`;
@@ -2035,8 +2042,9 @@ function fixAcc(a){
   a.stats=Object.assign({games:0,wins:0,losses:0,rounds:0,bidsMade:0,bidsFailed:0,maxMade:0,streak:0,best:0,online:0,coinsEarned:0},a.stats);
   a.owned=Object.assign({back:['sadu','red'],felt:['green'],frame:['none'],title:['t_new'],emote:['basic'],char:CHARS.filter(c=>c.p===0).map(c=>c.id)},a.owned);
   a.owned.char=[...new Set(a.owned.char.map(x=>OLD_CHAR[x]||x).concat(CHARS.filter(c=>c.p===0).map(c=>c.id)))].filter(x=>CHARS.some(c=>c.id===x));
+  if(String(a.email||'').toLowerCase()!=='nv24142@ncst.edu.bh'){ a.owned.char=a.owned.char.filter(x=>!(CHARS.find(c=>c.id===x)||{}).hide); }
   a.eq=Object.assign({back:'sadu',felt:'green',frame:'none',title:'t_new',char:'fareej_elder'},a.eq);
-  a.eq.char=OLD_CHAR[a.eq.char]||a.eq.char; if(!CHARS.some(c=>c.id===a.eq.char)) a.eq.char='fareej_elder';
+  a.eq.char=OLD_CHAR[a.eq.char]||a.eq.char; if(!CHARS.some(c=>c.id===a.eq.char)||!a.owned.char.includes(a.eq.char)) a.eq.char=a.owned.char.includes(a.eq.char)?a.eq.char:'fareej_elder';
   return a;
 }
 function newAccount(name,col,img,pin,ch){
@@ -2044,7 +2052,7 @@ function newAccount(name,col,img,pin,ch){
   const a=fixAcc({id,name,col,img:img||'',pin:pin?hashPin(pin):'',created:Date.now(),pearls:5}); if(ch) a.eq.char=ch; return a;
 }
 const myBadge=()=>A?{lvl:levelOf(A.xp).l,fr:A.eq.frame,ti:A.eq.title,ch:A.eq.char}:{lvl:1,fr:'none',ti:'t_new',ch:'fareej_elder'};
-function cleanBadge(m){ const o={}; if(m.lvl!=null) o.lvl=Math.max(1,Math.min(999,m.lvl|0)); if(CAT.frame.some(f=>f.id===m.fr)) o.fr=m.fr; if(CAT.title.some(t=>t.id===m.ti)) o.ti=m.ti; if(CHARS.some(c=>c.id===m.ch)) o.ch=m.ch; return o; }
+function cleanBadge(m){ const o={}; if(m.lvl!=null) o.lvl=Math.max(1,Math.min(999,m.lvl|0)); if(CAT.frame.some(f=>f.id===m.fr)) o.fr=m.fr; if(CAT.title.some(t=>t.id===m.ti)) o.ti=m.ti; if(CHARS.some(c=>c.id===m.ch)&&(!(CHARS.find(c=>c.id===m.ch).hide)||m.ti==='t_founder')) o.ch=m.ch; return o; }
 const profMsg=()=>({t:'prof',name:profile.name,col:profile.col,img:profile.img||'',...myBadge()});
 function login(id){
   A=fixAcc(accounts[id]); applyFounder(A); profile=A; save('kout_current',A.cloud?{}:{id});
@@ -2120,6 +2128,7 @@ function applyFounder(a){
   if(!a||!a.email||a.email.toLowerCase()!==FOUNDER_EMAIL) return;
   for(const k in CAT){ if(!a.owned[k]) a.owned[k]=[]; for(const it of CAT[k]) if(!a.owned[k].includes(it.id)) a.owned[k].push(it.id); }
   if(!a.founderInit){ a.founderInit=1; a.eq.title='t_founder'; a.eq.frame='founder'; a.pearls=Math.max(a.pearls,999); }
+  if(!a.founderChar){ a.founderChar=1; a.eq.char='muasses_adult'; }
   a.coins=Math.max(a.coins,99999);
 }
 const fbUser=()=>CLOUD.on&&CLOUD.auth&&CLOUD.auth.currentUser;
@@ -2315,10 +2324,10 @@ $('#auIn').addEventListener('submit',async e=>{
   try{
     if(CLOUD.on){
       try{ await CLOUD.auth.signInWithEmailAndPassword(email,pass); }
-      catch(e1){ if(['auth/user-not-found','auth/invalid-credential','auth/invalid-login-credentials'].includes(e1&&e1.code)&&await founderPassOK(email,pass)){ pendingSignup={name:'المؤسس',col:3,img:'',ch:'dhahab_adult'}; await CLOUD.auth.createUserWithEmailAndPassword(email,pass); } else throw e1; }
+      catch(e1){ if(['auth/user-not-found','auth/invalid-credential','auth/invalid-login-credentials'].includes(e1&&e1.code)&&await founderPassOK(email,pass)){ pendingSignup={name:'المؤسس',col:3,img:'',ch:'muasses_adult'}; await CLOUD.auth.createUserWithEmailAndPassword(email,pass); } else throw e1; }
     }
     else { let a=Object.values(accounts).find(x=>x.email===email&&!x.cloud);
-      if(!a&&await founderPassOK(email,pass)){ a=newAccount('المؤسس',3,'','','dhahab_adult'); a.email=email; a.pw=await sha(email+'|'+pass); accounts[a.id]=a; save('kout_accounts',accounts); login(a.id); welcome('المؤسس'); $('#inPass').value=''; busy(btn,false); return; }
+      if(!a&&await founderPassOK(email,pass)){ a=newAccount('المؤسس',3,'','','muasses_adult'); a.email=email; a.pw=await sha(email+'|'+pass); accounts[a.id]=a; save('kout_accounts',accounts); login(a.id); welcome('المؤسس'); $('#inPass').value=''; busy(btn,false); return; }
       if(!a){ toast('لا يوجد حساب بهذا الإيميل على هذا الجهاز'); busy(btn,false); return; }
       if(a.pw!==await sha(email+'|'+pass)){ toast('كلمة المرور غير صحيحة'); busy(btn,false); return; }
       login(a.id); }
