@@ -491,6 +491,22 @@ textarea.txt{min-height:80px;resize:vertical;font:inherit;line-height:1.6}
 @keyframes hintb{50%{box-shadow:0 0 0 4px #ffca28,0 0 20px rgba(255,202,40,.9);transform:translateY(-4px)}}
 .lbrank{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:var(--sunk);flex:none}
 .lbrank.r1{background:#ffd54f;color:#5d4300}.lbrank.r2{background:#cfd8dc;color:#37474f}.lbrank.r3{background:#d7a17a;color:#4e2a12}
+.koutchip{position:absolute;z-index:6;bottom:calc(var(--as,62px)*-.22);left:calc(var(--as,62px)*-.72);pointer-events:auto;min-width:40px;height:40px;padding:0 6px;border-radius:50%;border:3px solid #fff;background:radial-gradient(circle at 50% 35%,#ff6b5f,#c62828);color:#fff;font-family:var(--display);font-weight:800;font-size:13px;line-height:1;box-shadow:0 3px 0 #8e1b1b,0 6px 14px rgba(0,0,0,.35);animation:koutpulse 1.8s ease-in-out infinite;cursor:pointer}
+.koutchip:active{transform:translateY(2px)}
+.seat.lefty .koutchip{left:auto;right:calc(var(--as,62px)*-.72)}
+.tmr{position:absolute;z-index:5;bottom:calc(var(--as,62px)*-.2);left:50%;transform:translateX(-50%);min-width:28px;height:22px;padding:0 7px;border-radius:99px;background:#1f2a33;color:#fff;font-family:var(--display);font-weight:800;font-size:13px;display:grid;place-items:center;border:2px solid #fff;font-variant-numeric:tabular-nums}
+.seat.warn .tmr{background:var(--bad);animation:koutpulse .6s ease-in-out infinite}
+.seat.turn .nm{background:#ffca28!important;color:#3a2a00!important}
+.seat .av{transition:transform .25s}
+.koutyes{background:linear-gradient(180deg,#ff5a4e,#d32f2f)!important;color:#fff!important;border:0!important}
+.dealpk{position:absolute;left:0;top:0;width:calc(var(--tw)*.62);height:calc(var(--tw)*.87);transition:transform .42s cubic-bezier(.25,.8,.3,1),opacity .3s;pointer-events:none;z-index:4}
+.dealpk .card.flyback{position:absolute;left:0;top:0;--cw:calc(var(--tw)*.62);transition:none}
+.card.tcard{transition:transform .46s cubic-bezier(.2,.85,.25,1.05),opacity .3s}
+/* الحركات المخففة */
+html.lowfx .hy::before,html.lowfx .sheen,html.lowfx .cloud{display:none}
+html.lowfx .fan .card,html.lowfx .hand .card.legal,html.lowfx .giftb,html.lowfx .koutchip,html.lowfx .seat.turn .av,html.lowfx .seat .avatar .bob,html.lowfx .wheelb svg,html.lowfx .daily,html.lowfx .logo{animation:none!important}
+html.lowfx .card.tcard{transition:transform .2s ease-out,opacity .2s}
+html.lowfx .screen.enter{animation:none}
 .koutbtn{position:absolute;z-index:7;inset-inline-end:max(12px,env(safe-area-inset-left,0px));bottom:calc(var(--cw,76px)*.75);border:3px solid #fff;border-radius:16px;padding:8px 16px;font-family:var(--display);font-weight:800;font-size:22px;color:#fff;background:linear-gradient(180deg,#ff5a4e,#d32f2f);box-shadow:0 5px 0 #8e1b1b,0 10px 20px rgba(0,0,0,.35);animation:koutpulse 2.4s ease-in-out infinite}
 .koutbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #8e1b1b}
 @keyframes koutpulse{50%{transform:scale(1.06)}}
@@ -876,9 +892,13 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
       </div>
       <span class="lab">عدد اللاعبين</span>
       <div class="seg" id="vPlayers"><button data-n="4" aria-pressed="true">كوت بو ٤</button><button data-n="6" aria-pressed="false">كوت بو ٦</button><button data-n="8" aria-pressed="false">كوت بو ٨</button></div>
-      <span class="lab">القانون</span>
-      <div class="seg" id="cFree"><button data-f="0" aria-pressed="true">عادي (لازم تلعب من النوع)</button><button data-f="1" aria-pressed="false">القانون الخاص: ارمِ أي ورقة + إعلان الكوت</button></div>
-      <p class="small" id="cFreeNote" hidden style="margin:0">كل لاعب يقدر يرمي أي ورقة. إذا شكّيت أن خصماً رمى من نوع آخر وعنده من النوع المطلوب، اضغط «كوت!». إذا كان إعلانك صحيحاً يخسر فريقه المباراة فوراً، وإذا كان خاطئاً يخسر فريقك فوراً.</p>
+      <span class="lab">طريقة اللعب</span>
+      <div class="seg" id="cFree"><button data-f="0" aria-pressed="true">عادي: لازم تلعب من النوع</button><button data-f="1" aria-pressed="false">اللعب الحر (النقش): ارمِ أي ورقة</button></div>
+      <div id="cKoutWrap" style="display:grid;gap:8px" hidden>
+        <span class="lab">إعلان الكوت</span>
+        <div class="seg" id="cKout"><button data-k="1" aria-pressed="true">مفعّل</button><button data-k="0" aria-pressed="false">موقوف</button></div>
+        <p class="small" style="margin:0">تظهر دائرة «كوت» بجانب الخصم اللي رمى من نوع آخر. إذا كان إعلانك صحيحاً يخسر فريقه المباراة فوراً، وإذا كان خاطئاً يخسر فريقك فوراً.</p>
+      </div>
       <div class="grid2">
         <div style="display:grid;gap:8px"><label class="lab" for="cTarget">نهاية المباراة</label><select class="sel" id="cTarget"></select></div>
         <div style="display:grid;gap:8px"><label class="lab" for="cTimer">وقت الدور</label><select class="sel" id="cTimer"><option value="0">بدون مؤقت</option><option value="15">١٥ ثانية</option><option value="25" selected>٢٥ ثانية</option><option value="40">٤٠ ثانية</option></select></div>
@@ -973,6 +993,8 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
       <div class="seg" id="cIdx"><button data-v="en">A K Q J</button><button data-v="ar">إ ش ب و</button></div>
       <span class="lab">صوت المعلّق</span>
       <div class="seg" id="cVoice"><button data-v="on">يعلّق على اللعب</button><button data-v="off">بدون تعليق</button></div>
+      <span class="lab">الحركات والمؤثرات</span>
+      <div class="seg" id="cFx"><button data-v="on">كاملة</button><button data-v="low">مخففة</button></div>
       <span class="lab">طريقة اللعب باللمس</span>
       <div class="seg" id="cTap"><button data-v="auto">تلقائي</button><button data-v="one">لمسة واحدة</button><button data-v="two">لمستان للتأكيد</button></div>
     </div>
@@ -994,9 +1016,9 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
         <li><b>كوت بو ٦:</b> ستة لاعبين، كل فريق ثلاثة بالتناوب حول الطاولة.</li>
         <li><b>كوت بو ٨:</b> ثمانية لاعبين، كل فريق أربعة بالتناوب، بدستين من ورق بو ٤ (٦٤ ورقة، ٨ لكل لاعب). إذا نزلت ورقتان متطابقتان في نفس اللمّة، الأولى أقوى.</li>
         <li>اللعب والتوزيع عكس عقارب الساعة.</li></ul></section>
-      <section><h3>القانون الخاص (اختياري من إعدادات الغرفة)</h3><ul>
-        <li>كل لاعب يقدر يرمي أي ورقة يختارها، حتى لو عنده من النوع المطلوب.</li>
-        <li>إذا شكّيت أن خصماً رمى من نوع آخر وعنده من النوع المطلوب، اضغط <b>«كوت!»</b> واختره، وتقدر تعلن طول الجولة.</li>
+      <section><h3>اللعب الحر (النقش) وإعلان الكوت — اختياريان من إعدادات الغرفة</h3><ul>
+        <li><b>اللعب الحر:</b> كل لاعب يقدر يرمي أي ورقة يختارها، حتى لو عنده من النوع المطلوب.</li>
+        <li><b>إعلان الكوت</b> (يُفعّل أو يوقف مع اللعب الحر): إذا رمى خصم من نوع آخر تظهر دائرة حمراء «كوت» بجانب صورته. اضغطها إذا شكّيت أن عنده من النوع المطلوب، وتقدر تعلن طول الجولة.</li>
         <li>اللعبة تتحقق: إذا كان الإعلان <b>صحيحاً</b> يخسر فريق الخصم المباراة فوراً، وإذا كان <b>خاطئاً</b> يخسر فريقك المباراة فوراً.</li></ul></section>
       <section><h3>الورق</h3><ul>
         <li><b>بو ٤:</b> من ٧ إلى الإكة بدون ٧ الديمن، مع جوكر واحد: ٣٢ ورقة، ٨ لكل لاعب.</li>
@@ -1022,9 +1044,9 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
         <li><b>كوت بو ٦:</b> ستة لاعبين، كل فريق ثلاثة بالتناوب.</li>
         <li><b>كوت بو ٨:</b> ثمانية لاعبين، كل فريق أربعة بالتناوب، بدستين من ورق بو ٤ (٧٢ ورقة، ٩ لكل لاعب). إذا نزلت ورقتان متطابقتان في نفس اللمّة، الأولى أقوى.</li>
         <li>اللعب عكس عقارب الساعة.</li></ul></section>
-      <section><h3>القانون الخاص (اختياري من إعدادات الغرفة)</h3><ul>
-        <li>كل لاعب يقدر يرمي أي ورقة يختارها، حتى لو عنده من النوع المطلوب.</li>
-        <li>إذا شكّيت أن خصماً رمى من نوع آخر وعنده من النوع المطلوب، اضغط <b>«كوت!»</b> واختره، وتقدر تعلن طول الجولة.</li>
+      <section><h3>اللعب الحر (النقش) وإعلان الكوت — اختياريان من إعدادات الغرفة</h3><ul>
+        <li><b>اللعب الحر:</b> كل لاعب يقدر يرمي أي ورقة يختارها، حتى لو عنده من النوع المطلوب.</li>
+        <li><b>إعلان الكوت</b> (يُفعّل أو يوقف مع اللعب الحر): إذا رمى خصم من نوع آخر تظهر دائرة حمراء «كوت» بجانب صورته. اضغطها إذا شكّيت أن عنده من النوع المطلوب، وتقدر تعلن طول الجولة.</li>
         <li>اللعبة تتحقق: إذا كان الإعلان <b>صحيحاً</b> يخسر فريق الخصم المباراة فوراً، وإذا كان <b>خاطئاً</b> يخسر فريقك المباراة فوراً.</li></ul></section>
       <section><h3>الورق</h3><ul>
         <li><b>بو ٤:</b> من ٦ إلى الإكة بدون الستّتين الحمراوين، مع جوكرين: ٣٦ ورقة، ٩ لكل لاعب.</li>
@@ -1242,7 +1264,7 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
 <div class="ov" id="ovKout" hidden>
   <div class="panel">
     <div class="topline"><h2>إعلان الكوت</h2><button class="btn ghost sm" id="koClose" type="button">إلغاء</button></div>
-    <p class="small" style="margin:0">اختر الخصم اللي رمى من نوع آخر وعنده من النوع المطلوب. <b style="color:var(--bad)">إذا كان إعلانك خاطئاً يخسر فريقك المباراة فوراً</b>، وإذا كان صحيحاً يخسر فريقه فوراً.</p>
+    <p class="small" style="margin:0">ستعلن أن هذا اللاعب رمى من نوع آخر وعنده من النوع المطلوب. <b style="color:var(--bad)">إذا كان إعلانك خاطئاً يخسر فريقك المباراة فوراً</b>، وإذا كان صحيحاً يخسر فريقه فوراً.</p>
     <div class="accs" id="koList"></div>
   </div>
 </div>
@@ -1295,7 +1317,7 @@ function toast(m,ms=2600){const t=$('#toast'); t.textContent=m; t.hidden=false; 
 const DEBUG={auto:false}; let speed=1;
 
 const AV_COLORS=['#e3b766','#62c9c1','#e45b4f','#9a84ec','#5cc58c','#ec92bb','#5aa2ec','#f0903e'];
-const prefs=Object.assign({back:'sadu',face:'classic',idx:'en',felt:'green',size:'m',sound:true,customBack:'',tap:'auto',voice:'on',theme:'light',szUi:100,szTable:100,szCards:0,szAv:100},load('kout_prefs'));
+const prefs=Object.assign({back:'sadu',face:'classic',idx:'en',felt:'green',size:'m',sound:true,customBack:'',tap:'auto',voice:'on',fx:'on',theme:'light',szUi:100,szTable:100,szCards:0,szAv:100},load('kout_prefs'));
 let profile={name:'',col:0,img:''};
 const savePrefs=()=>save('kout_prefs',prefs), saveProfile=()=>saveAcc();
 let PID=null; try{PID=sessionStorage.getItem('kout_pid')}catch(e){}
@@ -1346,7 +1368,7 @@ function mkBot(){
 }
 function fillBots(){for(let i=0;i<R.seats.length;i++) if(!R.seats[i]) R.seats[i]=mkBot();}
 function setCfg(patch){
-  const old=R.cfg; R.cfg=Object.assign({},old,patch); R.cfg.free=!!R.cfg.free;
+  const old=R.cfg; R.cfg=Object.assign({},old,patch); R.cfg.free=!!R.cfg.free; R.cfg.kout=R.cfg.kout!==false;
   const Vr=VARS[R.cfg.v];
   if(patch.v&&patch.v!==old.v){
     if(!Vr.targets.includes(R.cfg.target)) R.cfg.target=Vr.target;
@@ -1446,7 +1468,7 @@ function act(s,a){
     const N=G.deck.length; const k=Math.max(3,Math.min(N-3,Math.round(+a.k)||Math.round(N/2)));
     G.deck=G.deck.slice(k).concat(G.deck.slice(0,k)); G.cutK=k; dealCards(); return;
   }
-  if(a.t==='kout'&&R.cfg.free&&['play','collect'].includes(G.phase)){ const t=+a.target; if(t>=0&&t<G.n&&team(t)!==team(s)&&G.offs[t]>0) koutCall(s,t); return; }
+  if(a.t==='kout'&&R.cfg.free&&R.cfg.kout!==false&&['play','collect'].includes(G.phase)){ const t=+a.target; if(t>=0&&t<G.n&&team(t)!==team(s)&&G.offs[t]>0) koutCall(s,t); return; }
   if(a.t==='bid'&&G.phase==='bid'&&G.turn===s){
     const v=+a.v; if(!bidOptions(s).includes(v)) return;
     G.bids[s]=v;
@@ -1465,7 +1487,7 @@ function playCard(s,c){
   if(R.cfg.free){
     if(!isJ(c)&&G.voids[s]&&G.voids[s][suitOf(c)]) G.proven[s]=1;
     if(G.led&&!isJ(c)&&suitOf(c)!==G.led){ G.offs[s]=(G.offs[s]||0)+1; if(H.some(x=>!isJ(x)&&suitOf(x)===G.led)) G.reneges.push({s,c,led:G.led,tn:G.tn}); (G.voids[s]=G.voids[s]||{})[G.led]=1; }
-    if(G.proven[s]&&!G.koutSched){ const callers=[...Array(G.n).keys()].filter(b=>team(b)!==team(s)&&R.seats[b]&&R.seats[b].bot);
+    if(R.cfg.kout!==false&&G.proven[s]&&!G.koutSched){ const callers=[...Array(G.n).keys()].filter(b=>team(b)!==team(s)&&R.seats[b]&&R.seats[b].bot);
       if(callers.length&&Math.random()<.9){ G.koutSched=1; const b=pick(callers), mid=G.mid, rd=G.round; setTimeout(()=>{ if(G&&G.mid===mid&&G.round===rd&&['play','collect'].includes(G.phase)) koutCall(b,s); },1400*speed); } }
   }
   H.splice(H.indexOf(c),1); G.played.push(c);
@@ -2591,6 +2613,7 @@ function excite_end(){
 }
 // confetti
 function confetti(n){
+  if(prefs.fx==='low') return;
   if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const cv=$('#confetti'), x=cv.getContext('2d'); cv.hidden=false; const dpr=Math.min(2,devicePixelRatio||1);
   cv.width=innerWidth*dpr; cv.height=innerHeight*dpr; x.setTransform(dpr,0,0,dpr,0,0);
@@ -2643,7 +2666,7 @@ function setScene(id){ setScene.cur=id||setScene.cur||'majlis'; const light=pref
   $('#scr-game').style.backgroundImage=(light?'linear-gradient(rgba(255,251,243,.55),rgba(244,238,227,.93))':'linear-gradient(rgba(10,6,8,.2),rgba(10,6,8,.78))')+','+sceneURL(setScene.cur); }
 const SUN='<svg class="iconsvg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/></svg>';
 const MOON='<svg class="iconsvg" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg>';
-function applyMode(){ const dark=prefs.theme==='dark'; document.documentElement.dataset.theme=dark?'dark':'light';
+function applyMode(){ const dark=prefs.theme==='dark'; document.documentElement.dataset.theme=dark?'dark':'light'; document.documentElement.classList.toggle('lowfx',prefs.fx==='low');
   const m=document.querySelector('meta[name=theme-color]'); if(m) m.content=dark?'#120d10':'#f4eee3';
   const h=$('#homeTheme'); if(h){ h.innerHTML=dark?SUN:MOON; h.setAttribute('aria-label',dark?'الوضع الفاتح':'الوضع الداكن'); }
   const d=$('#dmTheme'); if(d) d.textContent=dark?'الوضع الفاتح':'الوضع الداكن';
@@ -2744,15 +2767,21 @@ $('#whSpin').onclick=()=>{ if(!wheelReady()) return; $('#whSpin').disabled=true;
     hype('+'+w.v,w.t==='c'?'عملة من عجلة الحظ':'لؤلؤة من عجلة الحظ','small'); sfx('win'); confetti(70); $('#whNote').textContent='مبروك! ارجع بكرة للفّة جديدة.'; },4300); };
 // ---------- التلميح ----------
 const hintsUsed={};
-// ---------- إعلان الكوت (القانون الخاص) ----------
-function updateKout(){ const b=$('#gKout'); if(!b) return; const g=V&&V.g; b.hidden=!(g&&V.cfg.free&&V.me>=0&&['play','collect'].includes(g.phase)); }
-$('#gKout').onclick=()=>{ const g=V&&V.g; if(!g) return; const box=$('#koList'); box.textContent='';
-  V.seats.forEach((st,i)=>{ if(!st||team(i)===myTeam()) return; const n=(g.offs||{})[i]||0;
-    const r=friendRow({name:st.name,col:st.col,ch:st.ch,fr:st.fr,lvl:st.lvl},String(i),[[n?'أعلن كوت':'ما رمى خارج النوع',n?'':'',()=>{ if(!n) return; $('#ovKout').hidden=true; send({t:'act',a:{t:'kout',target:i}}); }]]);
-    r.querySelector('small').textContent=n?`رمى من نوع آخر ${n} ${n===1?'مرة':'مرات'} في هذه الجولة`:'لم يرمِ من نوع آخر في هذه الجولة';
-    const dot=r.querySelector('.fr-on'); if(dot) dot.remove(); const btn=r.querySelector('.acts .btn'); if(n){ btn.style.background='linear-gradient(180deg,#ff5a4e,#d32f2f)'; btn.style.color='#fff'; btn.style.border='0'; } else btn.disabled=true;
-    box.appendChild(r); });
-  $('#ovKout').hidden=false; };
+// ---------- إعلان الكوت ----------
+const koutOn=()=>!!(V&&V.cfg&&V.cfg.free&&V.cfg.kout!==false);
+function updateKout(){ const g=V&&V.g; $('#gKout').hidden=true;
+  seatEls.forEach((d,i)=>{ const c=d.querySelector('.koutchip'); if(!c) return;
+    const ok=!!(g&&koutOn()&&V.me>=0&&team(i)!==myTeam()&&['play','collect'].includes(g.phase)&&((g.offs||{})[i]||0)>0);
+    c.hidden=!ok; if(ok&&!c.onclick) c.onclick=e=>{ e.stopPropagation(); askKout(i); }; }); }
+let koutTarget=-1;
+function askKout(i){ const g=V&&V.g; if(!g) return; koutTarget=i; const st=V.seats[i]||{}; const n=(g.offs||{})[i]||0;
+  const box=$('#koList'); box.textContent='';
+  const r=friendRow({name:st.name,col:st.col,ch:st.ch,fr:st.fr,lvl:st.lvl},String(i),[]); r.querySelector('small').textContent=`رمى من نوع آخر ${n} ${n===1?'مرة':'مرات'} في هذه الجولة`; const dot=r.querySelector('.fr-on'); if(dot) dot.remove(); box.appendChild(r);
+  const row=el('div','row'); row.style.width='100%';
+  const no=el('button','btn grow','إلغاء'); no.type='button'; no.onclick=()=>{ $('#ovKout').hidden=true; };
+  const yes=el('button','btn grow koutyes','أعلن كوت'); yes.type='button'; yes.onclick=()=>{ $('#ovKout').hidden=true; if(koutTarget>=0) send({t:'act',a:{t:'kout',target:koutTarget}}); };
+  row.append(no,yes); box.appendChild(row); $('#ovKout').hidden=false; sfx('bid'); }
+$('#gKout').onclick=()=>{};
 $('#koClose').onclick=()=>$('#ovKout').hidden=true;
 function updateHint(){ const g=V&&V.g, b=$('#gHint'); if(!b) return; const can=!!(g&&isHost()&&G&&V.me>=0&&g.turn===V.me&&['bid','hukm','play'].includes(g.phase)); const left=g?3-(hintsUsed[g.mid]||0):0; b.hidden=!can||left<=0; $('#gHintN').textContent=left; }
 $('#gHint').onclick=()=>{ const g=V&&V.g; if(!g||!isHost()||!G||g.turn!==V.me) return; const me=V.me; hintsUsed[g.mid]=(hintsUsed[g.mid]||0)+1;
@@ -2815,7 +2844,7 @@ $('#pfDone').onclick=()=>{
 function needProfile(cb){ if(profile.name) cb(); else { toast('اختر اسمك أولاً'); openProfile(cb); } }
 
 // ---------- create ----------
-const createCfg={v:'bh4',target:31,turnSec:25,counter:'shared',free:false};
+const createCfg={v:'bh4',target:31,turnSec:25,counter:'shared',free:false,kout:true};
 function renderCreate(){
   const Vr=VARS[createCfg.v];
   for(const b of $$('#vCountry .vcard')) b.setAttribute('aria-pressed',String(b.dataset.c===Vr.c));
@@ -2825,9 +2854,11 @@ function renderCreate(){
   $('#cTimer').value=String(createCfg.turnSec);
   $('#cCounterWrap').hidden=Vr.c!=='bh';
   for(const b of $$('#cCounter button')) b.setAttribute('aria-pressed',String(b.dataset.k===createCfg.counter));
-  for(const b of $$('#cFree button')) b.setAttribute('aria-pressed',String((b.dataset.f==='1')===!!createCfg.free)); $('#cFreeNote').hidden=!createCfg.free;
+  for(const b of $$('#cFree button')) b.setAttribute('aria-pressed',String((b.dataset.f==='1')===!!createCfg.free)); $('#cKoutWrap').hidden=!createCfg.free;
+  for(const b of $$('#cKout button')) b.setAttribute('aria-pressed',String((b.dataset.k==='1')===(createCfg.kout!==false)));
 }
 for(const b of $$('#cFree button')) b.onclick=()=>{ createCfg.free=b.dataset.f==='1'; renderCreate(); };
+for(const b of $$('#cKout button')) b.onclick=()=>{ createCfg.kout=b.dataset.k==='1'; renderCreate(); };
 function setVariant(c,n){ const k=c+n; createCfg.v=k; const Vr=VARS[k]; if(!Vr.targets.includes(createCfg.target)) createCfg.target=Vr.target; renderCreate(); }
 for(const b of $$('#vCountry .vcard')) b.onclick=()=>setVariant(b.dataset.c,VARS[createCfg.v].n);
 for(const b of $$('#vPlayers button')) b.onclick=()=>setVariant(VARS[createCfg.v].c,+b.dataset.n);
@@ -2875,8 +2906,8 @@ function renderCustom(){
   const more=el('button'); more.innerHTML='<div class="card" style="display:grid;place-items:center;background:rgba(255,255,255,.06);box-shadow:none;border:1px dashed var(--line)"><span class="coin"></span></div><span>المزيد</span>'; more.onclick=()=>{ closeOver(); go('scr-store'); setStoreTab('back'); }; bk.appendChild(more);
   const ownsCustom=A&&A.owned.back.includes('custom');
   $('#cBackFile').closest('.row').hidden=!ownsCustom; $('#cBackClear').hidden=!prefs.customBack;
-  const seg=(sel,key)=>{ for(const b of $$(sel+' button')){ b.setAttribute('aria-pressed',String(prefs[key]===b.dataset.v)); b.onclick=()=>{prefs[key]=b.dataset.v; savePrefs(); applyTheme(); renderCustom(); refreshCards(); layout();}; } };
-  seg('#cFace','face'); seg('#cIdx','idx'); seg('#cTap','tap'); seg('#cVoice','voice');
+  const seg=(sel,key)=>{ for(const b of $$(sel+' button')){ b.setAttribute('aria-pressed',String(prefs[key]===b.dataset.v)); b.onclick=()=>{prefs[key]=b.dataset.v; savePrefs(); applyTheme(); applyMode(); renderCustom(); refreshCards(); layout();}; } };
+  seg('#cFace','face'); seg('#cIdx','idx'); seg('#cTap','tap'); seg('#cVoice','voice'); seg('#cFx','fx');
   const fl=$('#cFelt'); fl.textContent='';
   for(const [k,v] of Object.entries(FELTS)){ if(A&&!A.owned.felt.includes(k)) continue; const b=el('button'); b.style.background=`radial-gradient(${v[0]},${v[1]})`; b.title=FELTNAME[k]; b.setAttribute('aria-label','طاولة '+FELTNAME[k]); b.setAttribute('aria-pressed',String(prefs.felt===k)); b.onclick=()=>equip('felt',k,true); fl.appendChild(b); }
 }
@@ -2936,13 +2967,15 @@ function renderLobby(){
       addRow('نهاية المباراة',mk(Vr.targets.map(x=>[x,'إلى '+x]),V.cfg.target,v=>send({t:'cfg',p:{target:+v}})));
       addRow('وقت الدور',mk([[0,'بدون مؤقت'],[15,'١٥ ثانية'],[25,'٢٥ ثانية'],[40,'٤٠ ثانية']],V.cfg.turnSec,v=>send({t:'cfg',p:{turnSec:+v}})));
       if(Vr.c==='bh') addRow('الحساب',mk([['shared','عدّاد مشترك'],['split','نقاط لكل فريق']],V.cfg.counter,v=>send({t:'cfg',p:{counter:v}})));
-      addRow('القانون',mk([['0','عادي'],['1','الخاص: أي ورقة + كوت']],V.cfg.free?'1':'0',v=>send({t:'cfg',p:{free:v==='1'}})));
+      addRow('طريقة اللعب',mk([['0','عادي'],['1','اللعب الحر (النقش)']],V.cfg.free?'1':'0',v=>send({t:'cfg',p:{free:v==='1'}})));
+      if(V.cfg.free) addRow('إعلان الكوت',mk([['1','مفعّل'],['0','موقوف']],V.cfg.kout===false?'0':'1',v=>send({t:'cfg',p:{kout:v==='1'}})));
     } else {
       addRow('النوع',el('b',null,Vr.name));
       addRow('نهاية المباراة',el('b',null,'إلى '+V.cfg.target));
       addRow('وقت الدور',el('b',null,V.cfg.turnSec?V.cfg.turnSec+' ثانية':'بدون مؤقت'));
       if(Vr.c==='bh') addRow('الحساب',el('b',null,V.cfg.counter==='shared'?'عدّاد مشترك':'نقاط لكل فريق'));
-      addRow('القانون',el('b',null,V.cfg.free?'الخاص: أي ورقة + كوت':'عادي'));
+      addRow('طريقة اللعب',el('b',null,V.cfg.free?'اللعب الحر (النقش)':'عادي'));
+      if(V.cfg.free) addRow('إعلان الكوت',el('b',null,V.cfg.kout===false?'موقوف':'مفعّل'));
     }
   }
   $('#lbHostTag').textContent=V.host?'أنت المضيف':'يعدّلها المضيف';
@@ -3004,7 +3037,7 @@ function ensureSeats(){
   const n=V.seats.length; if(seatN===n&&seatEls.length) return;
   const wrap=$('#seats'); wrap.textContent=''; seatEls=[]; seatN=n;
   for(let i=0;i<n;i++){
-    const d=el('div','seat'); d.innerHTML='<div class="av"><div class="ring"></div><span class="avatar"></span><span class="lvb"></span><span class="dealer" hidden>م</span><div class="minis"></div></div><div class="nm"></div><div class="ttl"></div><div class="meta"></div>';
+    const d=el('div','seat'); d.innerHTML='<div class="av"><div class="ring"></div><span class="avatar"></span><span class="lvb"></span><span class="dealer" hidden>م</span><div class="minis"></div><button class="koutchip" type="button" hidden>كوت</button><span class="tmr" hidden></span></div><div class="nm"></div><div class="ttl"></div><div class="meta"></div>';
     wrap.appendChild(d); seatEls.push(d);
   }
   positionSeats();
@@ -3131,15 +3164,19 @@ function renderTrick(g){
   for(const [k,e] of trickEls){ if(!want.has(k)){ trickEls.delete(k); e.style.opacity='0'; setTimeout(()=>e.remove(),400); } }
 }
 function repositionTrick(){ if(!V||!V.g) return; V.g.trick.forEach((t,i)=>{ const e=trickEls.get(V.g.round+'-'+V.g.tn+'-'+t.s); if(e){ const [x,y,r]=trickSlot(t.s,i); e.style.transform=`translate(${x}px,${y}px) translateZ(3px) rotate(${r}deg)`; e.style.opacity='1'; } }); }
+/* التوزيع: دفعات (٣، ٣، ٢ أو ٣، ٣، ٣) ورقة ورقة لكل لاعب بالترتيب، مع صوت لكل دفعة */
 function dealAnim(g){
   sfx('shuffle');
-  const layer=$('#trick'), b=tableBox(), tw=(layout.tw||66)*.55;
-  const n=V.seats.length; let k=0;
-  for(let rep=0;rep<3;rep++) for(let s=0;s<n;s++){
-    const e=cardEl('BACK','flyback'); e.style.transform=`translate(${b.w/2-tw/2}px,${b.h*.5-tw*.7}px) translateZ(${rep*2}px)`; layer.appendChild(e);
-    const [sx,sy]=seatPx((g.dealer+1+s)%n); const delay=(k++)*45;
-    setTimeout(()=>{ e.style.transform=`translate(${sx-tw/2}px,${sy-tw*.7}px) translateZ(70px) rotate(${rnd(-200,200)}deg)`; e.style.opacity='0'; },60+delay);
-    setTimeout(()=>e.remove(),700+delay);
+  const layer=$('#trick'), b=tableBox(), tw=(layout.tw||66)*.62, n=V.seats.length, per=VARS[g.v].hand;
+  const sizes=per===8?[3,3,2]:[3,3,3], low=prefs.fx==='low', step=low?28:Math.max(45,Math.min(80,1500/(sizes.length*n)));
+  const cx=b.w/2-tw/2, cy=b.h*.5-tw*.7; let k=0;
+  for(const sz of sizes) for(let j=0;j<n;j++){
+    const s=(g.dealer+1+j)%n, [sx,sy]=seatPx(s), delay=(k++)*step;
+    const pk=el('div','dealpk'); for(let q=0;q<Math.min(sz,3);q++){ const c=cardEl('BACK','flyback'); c.style.transform=`translate(${q*2}px,${-q*2}px)`; pk.appendChild(c); }
+    pk.style.transform=`translate(${cx}px,${cy}px) rotate(0deg) scale(1)`; layer.appendChild(pk);
+    setTimeout(()=>{ pk.style.transform=`translate(${sx-tw/2}px,${sy-tw*.7}px) rotate(${rnd(-18,18)}deg) scale(.82)`; if(!low) sfx('card'); },60+delay);
+    setTimeout(()=>{ pk.style.opacity='0'; },60+delay+(low?220:420));
+    setTimeout(()=>pk.remove(),60+delay+(low?500:900));
   }
 }
 let selCard=null, pending=null;
@@ -3219,7 +3256,8 @@ function updateTimers(){
   if(!V||!V.g||V.rphase!=='game') return;
   const g=V.g, st=$('#gStatus');
   let left=0; if(g.tl&&g.tt){ left=Math.max(0,g.tl-(Date.now()-V.recvAt)); }
-  seatEls.forEach((d,i)=>{ const p=g.turn===i&&g.tt&&g.tl?left/g.tt:1; d.querySelector('.ring').style.setProperty('--p',p.toFixed(3)); d.classList.toggle('warn',g.turn===i&&left>0&&left<5000); });
+  seatEls.forEach((d,i)=>{ const p=g.turn===i&&g.tt&&g.tl?left/g.tt:1; d.querySelector('.ring').style.setProperty('--p',p.toFixed(3)); d.classList.toggle('warn',g.turn===i&&left>0&&left<5000);
+    const tm=d.querySelector('.tmr'); if(tm){ const show=g.turn===i&&left>0; tm.hidden=!show; if(show){ const sec=String(Math.ceil(left/1000)); if(tm.textContent!==sec) tm.textContent=sec; } } });
   if(g.turn===V.me&&left>0&&left<5000){ const sec=Math.ceil(left/1000); if(updateTimers.sec!==sec){ updateTimers.sec=sec; sfx('tick'); } } else updateTimers.sec=0;
   st.textContent=(st.dataset.base||'')+(left&&g.turn===V.me?` · ${Math.ceil(left/1000)}`:'');
   const rn=$('#rdNext'); if(rn&&g.phase==='roundEnd'){ const n=Math.max(0,Math.ceil((g.nextIn-(Date.now()-V.recvAt))/1000)); rn.textContent=`الجولة التالية خلال ${n}`; }
