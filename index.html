@@ -491,6 +491,10 @@ textarea.txt{min-height:80px;resize:vertical;font:inherit;line-height:1.6}
 @keyframes hintb{50%{box-shadow:0 0 0 4px #ffca28,0 0 20px rgba(255,202,40,.9);transform:translateY(-4px)}}
 .lbrank{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:900;background:var(--sunk);flex:none}
 .lbrank.r1{background:#ffd54f;color:#5d4300}.lbrank.r2{background:#cfd8dc;color:#37474f}.lbrank.r3{background:#d7a17a;color:#4e2a12}
+.koutbtn{position:absolute;z-index:7;inset-inline-end:max(12px,env(safe-area-inset-left,0px));bottom:calc(var(--cw,76px)*.75);border:3px solid #fff;border-radius:16px;padding:8px 16px;font-family:var(--display);font-weight:800;font-size:22px;color:#fff;background:linear-gradient(180deg,#ff5a4e,#d32f2f);box-shadow:0 5px 0 #8e1b1b,0 10px 20px rgba(0,0,0,.35);animation:koutpulse 2.4s ease-in-out infinite}
+.koutbtn:active{transform:translateY(3px);box-shadow:0 2px 0 #8e1b1b}
+@keyframes koutpulse{50%{transform:scale(1.06)}}
+.hand .card.free{cursor:pointer}
 .szrow{display:grid;grid-template-columns:minmax(120px,1fr) 2fr 48px;align-items:center;gap:10px}
 .szrow label{font-weight:700;font-size:14px}
 .szrow b{font-variant-numeric:tabular-nums;text-align:center;color:var(--gold2)}
@@ -871,7 +875,10 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
         <button class="vcard" data-c="kw" aria-pressed="false"><b>كويتية</b><span>جوكران، ٩ أوراق لكل لاعب، الشراء من باب إلى بوان، والفوز عند ١٠١.</span></button>
       </div>
       <span class="lab">عدد اللاعبين</span>
-      <div class="seg" id="vPlayers"><button data-n="4" aria-pressed="true">كوت بو ٤</button><button data-n="6" aria-pressed="false">كوت بو ٦</button></div>
+      <div class="seg" id="vPlayers"><button data-n="4" aria-pressed="true">كوت بو ٤</button><button data-n="6" aria-pressed="false">كوت بو ٦</button><button data-n="8" aria-pressed="false">كوت بو ٨</button></div>
+      <span class="lab">القانون</span>
+      <div class="seg" id="cFree"><button data-f="0" aria-pressed="true">عادي (لازم تلعب من النوع)</button><button data-f="1" aria-pressed="false">القانون الخاص: ارمِ أي ورقة + إعلان الكوت</button></div>
+      <p class="small" id="cFreeNote" hidden style="margin:0">كل لاعب يقدر يرمي أي ورقة. إذا شكّيت أن خصماً رمى من نوع آخر وعنده من النوع المطلوب، اضغط «كوت!». إذا كان إعلانك صحيحاً يخسر فريقه المباراة فوراً، وإذا كان خاطئاً يخسر فريقك فوراً.</p>
       <div class="grid2">
         <div style="display:grid;gap:8px"><label class="lab" for="cTarget">نهاية المباراة</label><select class="sel" id="cTarget"></select></div>
         <div style="display:grid;gap:8px"><label class="lab" for="cTimer">وقت الدور</label><select class="sel" id="cTimer"><option value="0">بدون مؤقت</option><option value="15">١٥ ثانية</option><option value="25" selected>٢٥ ثانية</option><option value="40">٤٠ ثانية</option></select></div>
@@ -928,6 +935,7 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
       </div>
     </div>
     <div id="seats"></div>
+    <button class="koutbtn" id="gKout" type="button" hidden>كوت!</button>
     <div class="deck" id="deck" hidden><div class="half a"></div><div class="half b"></div><div class="dlab" id="deckLab"></div></div>
   </div>
   <div class="bottom">
@@ -984,7 +992,12 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
       <section><h3>الجلسة</h3><ul>
         <li><b>كوت بو ٤:</b> أربعة لاعبين، كل فريق اثنان والشريك مقابلك.</li>
         <li><b>كوت بو ٦:</b> ستة لاعبين، كل فريق ثلاثة بالتناوب حول الطاولة.</li>
+        <li><b>كوت بو ٨:</b> ثمانية لاعبين، كل فريق أربعة بالتناوب، بدستين من ورق بو ٤ (٦٤ ورقة، ٨ لكل لاعب). إذا نزلت ورقتان متطابقتان في نفس اللمّة، الأولى أقوى.</li>
         <li>اللعب والتوزيع عكس عقارب الساعة.</li></ul></section>
+      <section><h3>القانون الخاص (اختياري من إعدادات الغرفة)</h3><ul>
+        <li>كل لاعب يقدر يرمي أي ورقة يختارها، حتى لو عنده من النوع المطلوب.</li>
+        <li>إذا شكّيت أن خصماً رمى من نوع آخر وعنده من النوع المطلوب، اضغط <b>«كوت!»</b> واختره، وتقدر تعلن طول الجولة.</li>
+        <li>اللعبة تتحقق: إذا كان الإعلان <b>صحيحاً</b> يخسر فريق الخصم المباراة فوراً، وإذا كان <b>خاطئاً</b> يخسر فريقك المباراة فوراً.</li></ul></section>
       <section><h3>الورق</h3><ul>
         <li><b>بو ٤:</b> من ٧ إلى الإكة بدون ٧ الديمن، مع جوكر واحد: ٣٢ ورقة، ٨ لكل لاعب.</li>
         <li><b>بو ٦:</b> من ٣ إلى الإكة بدون ٣ الديمن، مع جوكر واحد: ٤٨ ورقة، ٨ لكل لاعب.</li>
@@ -1007,7 +1020,12 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
       <section><h3>الجلسة</h3><ul>
         <li><b>كوت بو ٤:</b> أربعة لاعبين، كل فريق اثنان والشريك مقابلك.</li>
         <li><b>كوت بو ٦:</b> ستة لاعبين، كل فريق ثلاثة بالتناوب.</li>
+        <li><b>كوت بو ٨:</b> ثمانية لاعبين، كل فريق أربعة بالتناوب، بدستين من ورق بو ٤ (٧٢ ورقة، ٩ لكل لاعب). إذا نزلت ورقتان متطابقتان في نفس اللمّة، الأولى أقوى.</li>
         <li>اللعب عكس عقارب الساعة.</li></ul></section>
+      <section><h3>القانون الخاص (اختياري من إعدادات الغرفة)</h3><ul>
+        <li>كل لاعب يقدر يرمي أي ورقة يختارها، حتى لو عنده من النوع المطلوب.</li>
+        <li>إذا شكّيت أن خصماً رمى من نوع آخر وعنده من النوع المطلوب، اضغط <b>«كوت!»</b> واختره، وتقدر تعلن طول الجولة.</li>
+        <li>اللعبة تتحقق: إذا كان الإعلان <b>صحيحاً</b> يخسر فريق الخصم المباراة فوراً، وإذا كان <b>خاطئاً</b> يخسر فريقك المباراة فوراً.</li></ul></section>
       <section><h3>الورق</h3><ul>
         <li><b>بو ٤:</b> من ٦ إلى الإكة بدون الستّتين الحمراوين، مع جوكرين: ٣٦ ورقة، ٩ لكل لاعب.</li>
         <li><b>بو ٦:</b> الورق كامل مع جوكرين: ٥٤ ورقة، ٩ لكل لاعب.</li>
@@ -1221,6 +1239,13 @@ html[data-theme=dark] .persp .table{background:radial-gradient(ellipse 70% 60% a
     <div class="row" style="width:100%"><button class="btn ghost grow" id="iiNo" type="button">لاحقاً</button><button class="btn gold grow" id="iiGo" type="button">انضم الآن</button></div>
   </div>
 </div>
+<div class="ov" id="ovKout" hidden>
+  <div class="panel">
+    <div class="topline"><h2>إعلان الكوت</h2><button class="btn ghost sm" id="koClose" type="button">إلغاء</button></div>
+    <p class="small" style="margin:0">اختر الخصم اللي رمى من نوع آخر وعنده من النوع المطلوب. <b style="color:var(--bad)">إذا كان إعلانك خاطئاً يخسر فريقك المباراة فوراً</b>، وإذا كان صحيحاً يخسر فريقه فوراً.</p>
+    <div class="accs" id="koList"></div>
+  </div>
+</div>
 <div class="ov" id="ovRound" hidden><div class="panel center" id="rdBody"></div></div>
 <div class="ov" id="ovEnd" hidden><div class="panel center" id="endBody"></div></div>
 <div class="ov" id="ovLast" hidden><div class="panel center"><h3>آخر لمّة</h3><div class="lastgrid" id="lastBody"></div><button class="btn block" id="lastClose">إغلاق</button></div></div>
@@ -1283,15 +1308,18 @@ const VARS={
   bh6:{key:'bh6',c:'bh',n:6,ranks:range(3,14),remove:['D3'],jokers:['JK'],hand:8,max:8,lead:'next',hold:true,targets:[26,31,51,101],target:31,name:'بحرينية · بو ٦'},
   kw4:{key:'kw4',c:'kw',n:4,ranks:range(6,14),remove:['H6','D6'],jokers:['JR','JB'],hand:9,max:9,lead:'bidder',hold:false,targets:[51,101,151],target:101,name:'كويتية · بو ٤'},
   kw6:{key:'kw6',c:'kw',n:6,ranks:range(2,14),remove:[],jokers:['JR','JB'],hand:9,max:9,lead:'bidder',hold:false,targets:[51,101,151],target:101,name:'كويتية · بو ٦'},
+  bh8:{key:'bh8',c:'bh',n:8,decks:2,ranks:range(7,14),remove:['D7'],jokers:['JK'],hand:8,max:8,lead:'next',hold:true,targets:[26,31,51,101],target:31,name:'بحرينية · بو ٨'},
+  kw8:{key:'kw8',c:'kw',n:8,decks:2,ranks:range(6,14),remove:['H6','D6'],jokers:['JR','JB'],hand:9,max:9,lead:'bidder',hold:false,targets:[51,101,151],target:101,name:'كويتية · بو ٨'},
 };
 const BIDNAME={bh:{5:'باب',6:'ستة',7:'سبعة',8:'انزلي'},kw:{5:'باب',6:'ستة',7:'سبعة',8:'ثمانية',9:'بوان'}};
 const PASSNAME={bh:'باس',kw:'طاف'};
 const SUITS=['S','H','C','D'];
 const SUITNAME={S:'سبيت',H:'هاص',D:'ديمن',C:'شريا'};
+const cardName=c=>isJ(c)?'الجوكر':(({11:'الولد',12:'البنت',13:'الشايب',14:'الإكة'})[rankOf(c)]||String(rankOf(c)))+' '+SUITNAME[suitOf(c)];
 const BOT_NAMES=['سالم','مبارك','عيسى','راشد','جاسم','حمد','يوسف','خليفة','ناصر','فهد','بدر','عبدالله'];
 const isJ=c=>c[0]==='J', suitOf=c=>isJ(c)?null:c[0], rankOf=c=>isJ(c)?0:+c.slice(1);
 const team=s=>s%2;
-function makeDeck(Vr){const d=[]; for(const s of SUITS) for(const r of Vr.ranks){const c=s+r; if(!Vr.remove.includes(c)) d.push(c);} return d.concat(Vr.jokers);}
+function makeDeck(Vr){const d=[]; for(let k=0;k<(Vr.decks||1);k++){ for(const s of SUITS) for(const r of Vr.ranks){const c=s+r; if(!Vr.remove.includes(c)) d.push(c);} d.push(...Vr.jokers); } return d;}
 
 // ================= host engine =================
 let mode='none'; // none | solo | host | client
@@ -1318,7 +1346,7 @@ function mkBot(){
 }
 function fillBots(){for(let i=0;i<R.seats.length;i++) if(!R.seats[i]) R.seats[i]=mkBot();}
 function setCfg(patch){
-  const old=R.cfg; R.cfg=Object.assign({},old,patch);
+  const old=R.cfg; R.cfg=Object.assign({},old,patch); R.cfg.free=!!R.cfg.free;
   const Vr=VARS[R.cfg.v];
   if(patch.v&&patch.v!==old.v){
     if(!Vr.targets.includes(R.cfg.target)) R.cfg.target=Vr.target;
@@ -1346,6 +1374,7 @@ function startRound(){
   G.hands=Array.from({length:G.n},()=>[]);
   G.bids=Array(G.n).fill(null); G.high=null; G.hukm=null; G.trick=[]; G.led=null; G.tricks=[0,0];
   G.played=[]; G.last=null; G.tn=0; G.result=null; G.trickWinner=-1; G.turn=-1; G.deadline=0;
+  G.offs={}; G.reneges=[]; G.voids={}; G.proven={}; G.koutSched=0;
   /* الخبص: الموزّع يخبص الورق، ثم اللاعب اللي قبله يقص، ثم التوزيع */
   G.phase='shuffle'; setTurn(G.dealer); sync();
 }
@@ -1384,7 +1413,9 @@ function jokerLeadOK(s,c){
   if(team(s)!==team(G.high.seat)) return false;
   return G.high.v===9||(G.high.v===8&&c==='JR');
 }
-function legal(s){
+/* القانون الخاص: أي لاعب يرمي أي ورقة، والروبوتات تلتزم دائماً بالقانون العادي */
+function legal(s){ return R&&R.cfg&&R.cfg.free?G.hands[s].slice():legalStrict(s); }
+function legalStrict(s){
   const H=G.hands[s];
   if(G.trick.length===0){
     let L=H.filter(c=>!isJ(c)||jokerLeadOK(s,c));
@@ -1415,6 +1446,7 @@ function act(s,a){
     const N=G.deck.length; const k=Math.max(3,Math.min(N-3,Math.round(+a.k)||Math.round(N/2)));
     G.deck=G.deck.slice(k).concat(G.deck.slice(0,k)); G.cutK=k; dealCards(); return;
   }
+  if(a.t==='kout'&&R.cfg.free&&['play','collect'].includes(G.phase)){ const t=+a.target; if(t>=0&&t<G.n&&team(t)!==team(s)&&G.offs[t]>0) koutCall(s,t); return; }
   if(a.t==='bid'&&G.phase==='bid'&&G.turn===s){
     const v=+a.v; if(!bidOptions(s).includes(v)) return;
     G.bids[s]=v;
@@ -1429,13 +1461,25 @@ function act(s,a){
   if(a.t==='play'&&G.phase==='play'&&G.turn===s&&legal(s).includes(a.c)) playCard(s,a.c);
 }
 function playCard(s,c){
-  const H=G.hands[s]; H.splice(H.indexOf(c),1); G.played.push(c);
+  const H=G.hands[s];
+  if(R.cfg.free){
+    if(!isJ(c)&&G.voids[s]&&G.voids[s][suitOf(c)]) G.proven[s]=1;
+    if(G.led&&!isJ(c)&&suitOf(c)!==G.led){ G.offs[s]=(G.offs[s]||0)+1; if(H.some(x=>!isJ(x)&&suitOf(x)===G.led)) G.reneges.push({s,c,led:G.led,tn:G.tn}); (G.voids[s]=G.voids[s]||{})[G.led]=1; }
+    if(G.proven[s]&&!G.koutSched){ const callers=[...Array(G.n).keys()].filter(b=>team(b)!==team(s)&&R.seats[b]&&R.seats[b].bot);
+      if(callers.length&&Math.random()<.9){ G.koutSched=1; const b=pick(callers), mid=G.mid, rd=G.round; setTimeout(()=>{ if(G&&G.mid===mid&&G.round===rd&&['play','collect'].includes(G.phase)) koutCall(b,s); },1400*speed); } }
+  }
+  H.splice(H.indexOf(c),1); G.played.push(c);
   let dead=false;
   if(isJ(c)) dead=G.trick.length===0?!jokerLeadOK(s,c):!G.led;
   G.trick.push({s,c,dead});
   if(!G.led&&!dead) G.led=isJ(c)?G.hukm:suitOf(c);
   if(G.trick.length===G.n) resolveTrick();
   else {setTurn((s+1)%G.n); sync();}
+}
+function koutCall(s,t){
+  const correct=G.reneges.some(r=>r.s===t), proof=G.reneges.find(r=>r.s===t)||null;
+  G.result={kout:{by:s,target:t,correct,proof},instant:true,bt:team(s),v:0,made:correct};
+  G.winner=correct?team(s):team(t); G.phase='matchEnd'; G.turn=-1; G.deadline=0; sync();
 }
 function trickLeader(){let best=-2,w=-1; for(const t of G.trick){const p=power(t.c,t.dead); if(p>best){best=p;w=t.s;}} return {s:w,p:best};}
 function resolveTrick(){
@@ -1530,7 +1574,7 @@ function botBid(s){
 function cost(c){return isJ(c)?300:(suitOf(c)===G.hukm?60+rankOf(c):rankOf(c));}
 function cheapest(L){return L.slice().sort((a,b)=>cost(a)-cost(b))[0];}
 function botPlay(s){
-  const L=legal(s); if(L.length===1) return L[0];
+  const L=legalStrict(s); if(L.length===1) return L[0];
   const H=G.hands[s], my=team(s), bt=team(G.high.seat), Vr=VARS[G.v];
   const nonJ=L.filter(c=>!isJ(c));
   if(G.trick.length===0){
@@ -1581,11 +1625,11 @@ function viewFor(pid){
     const now=Date.now();
     const g={mid:G.mid,v:G.v,phase:G.phase,dealer:G.dealer,turn:G.turn,bids:G.bids,high:G.high,hukm:G.hukm,trick:G.trick,led:G.led,tricks:G.tricks,
       scores:G.scores,counter:G.counter,round:G.round,tn:G.tn,last:G.last,trickWinner:G.trickWinner,result:G.result,winner:G.winner,log:G.log,
-      counts:G.hands.map(h=>h.length),shuffles:G.shuffles||0,cutK:G.cutK||0,deckN:(G.deck||[]).length,cutter:cutterOf(),tl:G.deadline?Math.max(0,G.deadline-now):0,tt:(R.cfg.turnSec||0)*1000,nextIn:G.phase==='roundEnd'?Math.max(0,G.nextAt-now):0};
+      counts:G.hands.map(h=>h.length),offs:G.offs||{},shuffles:G.shuffles||0,cutK:G.cutK||0,deckN:(G.deck||[]).length,cutter:cutterOf(),tl:G.deadline?Math.max(0,G.deadline-now):0,tt:(R.cfg.turnSec||0)*1000,nextIn:G.phase==='roundEnd'?Math.max(0,G.nextAt-now):0};
     if(me>=0){
       g.hand=G.hands[me].slice();
       if(G.turn===me){
-        if(G.phase==='play') g.legal=legal(me);
+        if(G.phase==='play'){ g.legal=legal(me); g.strict=legalStrict(me); }
         if(G.phase==='bid') g.bidOpts=bidOptions(me);
         if(G.phase==='hukm') g.hukmOpts=hukmOptions(me);
       }
@@ -2700,6 +2744,16 @@ $('#whSpin').onclick=()=>{ if(!wheelReady()) return; $('#whSpin').disabled=true;
     hype('+'+w.v,w.t==='c'?'عملة من عجلة الحظ':'لؤلؤة من عجلة الحظ','small'); sfx('win'); confetti(70); $('#whNote').textContent='مبروك! ارجع بكرة للفّة جديدة.'; },4300); };
 // ---------- التلميح ----------
 const hintsUsed={};
+// ---------- إعلان الكوت (القانون الخاص) ----------
+function updateKout(){ const b=$('#gKout'); if(!b) return; const g=V&&V.g; b.hidden=!(g&&V.cfg.free&&V.me>=0&&['play','collect'].includes(g.phase)); }
+$('#gKout').onclick=()=>{ const g=V&&V.g; if(!g) return; const box=$('#koList'); box.textContent='';
+  V.seats.forEach((st,i)=>{ if(!st||team(i)===myTeam()) return; const n=(g.offs||{})[i]||0;
+    const r=friendRow({name:st.name,col:st.col,ch:st.ch,fr:st.fr,lvl:st.lvl},String(i),[[n?'أعلن كوت':'ما رمى خارج النوع',n?'':'',()=>{ if(!n) return; $('#ovKout').hidden=true; send({t:'act',a:{t:'kout',target:i}}); }]]);
+    r.querySelector('small').textContent=n?`رمى من نوع آخر ${n} ${n===1?'مرة':'مرات'} في هذه الجولة`:'لم يرمِ من نوع آخر في هذه الجولة';
+    const dot=r.querySelector('.fr-on'); if(dot) dot.remove(); const btn=r.querySelector('.acts .btn'); if(n){ btn.style.background='linear-gradient(180deg,#ff5a4e,#d32f2f)'; btn.style.color='#fff'; btn.style.border='0'; } else btn.disabled=true;
+    box.appendChild(r); });
+  $('#ovKout').hidden=false; };
+$('#koClose').onclick=()=>$('#ovKout').hidden=true;
 function updateHint(){ const g=V&&V.g, b=$('#gHint'); if(!b) return; const can=!!(g&&isHost()&&G&&V.me>=0&&g.turn===V.me&&['bid','hukm','play'].includes(g.phase)); const left=g?3-(hintsUsed[g.mid]||0):0; b.hidden=!can||left<=0; $('#gHintN').textContent=left; }
 $('#gHint').onclick=()=>{ const g=V&&V.g; if(!g||!isHost()||!G||g.turn!==V.me) return; const me=V.me; hintsUsed[g.mid]=(hintsUsed[g.mid]||0)+1;
   if(g.phase==='play'){ const c=botPlay(me); const e=[...$$('#hand .card')].find(x=>x.dataset.c===c); if(e){ e.classList.remove('hint'); void e.offsetWidth; e.classList.add('hint'); } }
@@ -2761,7 +2815,7 @@ $('#pfDone').onclick=()=>{
 function needProfile(cb){ if(profile.name) cb(); else { toast('اختر اسمك أولاً'); openProfile(cb); } }
 
 // ---------- create ----------
-const createCfg={v:'bh4',target:31,turnSec:25,counter:'shared'};
+const createCfg={v:'bh4',target:31,turnSec:25,counter:'shared',free:false};
 function renderCreate(){
   const Vr=VARS[createCfg.v];
   for(const b of $$('#vCountry .vcard')) b.setAttribute('aria-pressed',String(b.dataset.c===Vr.c));
@@ -2771,7 +2825,9 @@ function renderCreate(){
   $('#cTimer').value=String(createCfg.turnSec);
   $('#cCounterWrap').hidden=Vr.c!=='bh';
   for(const b of $$('#cCounter button')) b.setAttribute('aria-pressed',String(b.dataset.k===createCfg.counter));
+  for(const b of $$('#cFree button')) b.setAttribute('aria-pressed',String((b.dataset.f==='1')===!!createCfg.free)); $('#cFreeNote').hidden=!createCfg.free;
 }
+for(const b of $$('#cFree button')) b.onclick=()=>{ createCfg.free=b.dataset.f==='1'; renderCreate(); };
 function setVariant(c,n){ const k=c+n; createCfg.v=k; const Vr=VARS[k]; if(!Vr.targets.includes(createCfg.target)) createCfg.target=Vr.target; renderCreate(); }
 for(const b of $$('#vCountry .vcard')) b.onclick=()=>setVariant(b.dataset.c,VARS[createCfg.v].n);
 for(const b of $$('#vPlayers button')) b.onclick=()=>setVariant(VARS[createCfg.v].c,+b.dataset.n);
@@ -2880,11 +2936,13 @@ function renderLobby(){
       addRow('نهاية المباراة',mk(Vr.targets.map(x=>[x,'إلى '+x]),V.cfg.target,v=>send({t:'cfg',p:{target:+v}})));
       addRow('وقت الدور',mk([[0,'بدون مؤقت'],[15,'١٥ ثانية'],[25,'٢٥ ثانية'],[40,'٤٠ ثانية']],V.cfg.turnSec,v=>send({t:'cfg',p:{turnSec:+v}})));
       if(Vr.c==='bh') addRow('الحساب',mk([['shared','عدّاد مشترك'],['split','نقاط لكل فريق']],V.cfg.counter,v=>send({t:'cfg',p:{counter:v}})));
+      addRow('القانون',mk([['0','عادي'],['1','الخاص: أي ورقة + كوت']],V.cfg.free?'1':'0',v=>send({t:'cfg',p:{free:v==='1'}})));
     } else {
       addRow('النوع',el('b',null,Vr.name));
       addRow('نهاية المباراة',el('b',null,'إلى '+V.cfg.target));
       addRow('وقت الدور',el('b',null,V.cfg.turnSec?V.cfg.turnSec+' ثانية':'بدون مؤقت'));
       if(Vr.c==='bh') addRow('الحساب',el('b',null,V.cfg.counter==='shared'?'عدّاد مشترك':'نقاط لكل فريق'));
+      addRow('القانون',el('b',null,V.cfg.free?'الخاص: أي ورقة + كوت':'عادي'));
     }
   }
   $('#lbHostTag').textContent=V.host?'أنت المضيف':'يعدّلها المضيف';
@@ -2900,10 +2958,10 @@ $('#lbCopy').onclick=()=>{ const url=location.origin+location.pathname+'#'+V.cod
 $('#lbShare').onclick=()=>{ const url=location.origin+location.pathname+'#'+V.code; navigator.share({title:'كوت',text:'تعال العب كوت معنا، رمز الغرفة '+V.code,url}).catch(()=>{}); };
 
 // ---------- game ----------
-const SLOTS_WIDE={4:[[88,90],[92,40],[50,9],[8,40]],6:[[88,90],[93,60],[84,13],[50,8],[16,13],[7,60]]};
-const SLOTS_TALL={4:[[84,91],[88,43],[50,8],[12,43]],6:[[84,91],[88,62],[80,14],[50,7],[20,14],[12,62]]};
+const SLOTS_WIDE={4:[[88,90],[92,40],[50,9],[8,40]],6:[[88,90],[93,60],[84,13],[50,8],[16,13],[7,60]],8:[[88,90],[93,66],[92,30],[74,9],[50,7],[26,9],[8,30],[7,66]]};
+const SLOTS_TALL={4:[[84,91],[88,43],[50,8],[12,43]],6:[[84,91],[88,62],[80,14],[50,7],[20,14],[12,62]],8:[[84,91],[88,68],[88,38],[74,12],[50,7],[26,12],[12,38],[12,68]]};
 let SLOTS=SLOTS_WIDE;
-const PLANE={4:[[50,112],[104,50],[50,-8],[-4,50]],6:[[50,112],[104,72],[88,-6],[50,-8],[12,-6],[-4,72]]};
+const PLANE={4:[[50,112],[104,50],[50,-8],[-4,50]],6:[[50,112],[104,72],[88,-6],[50,-8],[12,-6],[-4,72]],8:[[50,112],[104,78],[104,24],[76,-8],[50,-10],[24,-8],[-4,24],[-4,78]]};
 let seatEls=[], seatN=0, trickEls=new Map(), handSig='', collectKey='', dealKey='', overKey='', lastTurnMine=false, prevPhase='';
 function resetGameUI(){ $('#deck').hidden=true; shufKey=''; cutKey=''; $('#seats').textContent=''; $('#trick').textContent=''; $('#hand').textContent=''; seatEls=[]; seatN=0; trickEls.clear(); handSig=''; collectKey=''; dealKey=''; overKey=''; $('#ovRound').hidden=true; $('#ovEnd').hidden=true; $('#ovLast').hidden=true; }
 const relOf=s=>{const n=V.seats.length, me=V.me>=0?V.me:0; return (s-me+n)%n;};
@@ -2992,7 +3050,8 @@ function renderGame(prev){
   // hand
   renderHand(g);
   // panel + status
-  renderPanel(g,Vr); updateHint();
+  renderPanel(g,Vr); updateHint(); updateKout();
+  if(g.phase==='matchEnd'&&g.result&&g.result.kout){ const k=g.result.kout, key='kout:'+g.mid; if(!evSeen.has(key)){ evSeen.add(key); $('#ovKout').hidden=true; hype('كوت!',(k.by===V.me?'أنت':nameAt(k.by))+(k.correct?' · إعلان صحيح':' · إعلان خاطئ'),'joker'); sfx('hype'); say('كوت'); setMood(k.target,k.correct?'sad':'happy',3000); setMood(k.by,k.correct?'happy':'sad',3000); } }
   // turn sound
   const mine=g.turn===V.me&&V.me>=0&&['shuffle','cut','bid','hukm','play'].includes(g.phase);
   if(mine&&!lastTurnMine){ sfx('turn'); try{navigator.vibrate&&navigator.vibrate(35);}catch(e){} }
@@ -3096,16 +3155,16 @@ function renderHand(g){
   const hand=$('#hand');
   if(Date.now()<handHold){ clearTimeout(renderHand.t); renderHand.t=setTimeout(()=>{ handSig=''; if(V&&V.g&&V.rphase==='game') renderHand(V.g); },handHold-Date.now()+20); return; }
   const H=g.hand||[]; const myTurn=g.turn===V.me&&g.phase==='play';
-  const legalSet=new Set(myTurn?(g.legal||[]):[]);
+  const legalSet=new Set(myTurn?(g.legal||[]):[]); const glowSet=V.cfg.free?new Set(myTurn?(g.strict||[]):[]):legalSet;
   if(pending&&(!H.includes(pending)||g.phase!=='play'||g.turn!==V.me)) pending=null;
   const sig=JSON.stringify([H,g.hukm,[...legalSet],selCard,pending,prefSig(),g.round]);
   if(sig===handSig) return;
   const roundChanged=hand.dataset.round!==String(g.round); hand.dataset.round=g.round;
   handSig=sig; hand.textContent='';
-  const order=sortHand(H,g.hukm).filter(c=>c!==pending), mid=(order.length-1)/2;
+  let dropped=false; const order=sortHand(H,g.hukm).filter(c=>{ if(!dropped&&c===pending){ dropped=true; return false; } return true; }), mid=(order.length-1)/2;
   order.forEach((c,i)=>{
     const e=cardEl(c);
-    if(myTurn){ if(legalSet.has(c)) e.classList.add('legal'); else e.classList.add('dim'); }
+    if(myTurn){ if(glowSet.has(c)) e.classList.add('legal'); else if(!legalSet.has(c)) e.classList.add('dim'); else e.classList.add('free'); }
     if(c===selCard) e.classList.add('sel');
     if(roundChanged){ e.classList.add('enter'); e.style.animationDelay=(i*55)+'ms'; }
     const d=i-mid; e.style.setProperty('--rot',(d*Math.min(4.5,26/Math.max(1,order.length))).toFixed(2)+'deg'); e.style.setProperty('--ty',(Math.abs(d)*Math.abs(d)*1.3).toFixed(1)+'px'); e.style.zIndex=i+1;
@@ -3208,7 +3267,10 @@ function showEnd(g,Vr){
     if(rw.leveled) setTimeout(()=>showLevelUp(rw.leveled),2200);
   }
   let why='';
-  if(r.instant&&Vr.c==='bh') why=r.made?'انزلي ناجح حسم المباراة':'انزلي مكسور حسم المباراة';
+  if(r.kout){ const k=r.kout, meBy=k.by===V.me, meT=k.target===V.me;
+    const who=(meBy?'أعلنت':nameAt(k.by)+' أعلن')+' كوت '+(meT?'عليك':'على '+nameAt(k.target));
+    why=k.correct?`${who} وكان الإعلان صحيحاً: ${meT?'رميت':'رمى'} ${cardName(k.proof.c)} و${meT?'عندك':'عنده'} من ${SUITNAME[k.proof.led]}.`:`${who} وكان الإعلان خاطئاً، فخسر ${meBy?'فريقك':'فريقه'} المباراة.`; }
+  else if(r.instant&&Vr.c==='bh') why=r.made?'انزلي ناجح حسم المباراة':'انزلي مكسور حسم المباراة';
   else if(r.instant) why='بوان في الجولة الأولى';
   body.appendChild(el('p',null,why||`بعد ${g.round} جولات`));
   const names=t=>V.seats.map((s,i)=>team(i)===t?(i===V.me?'أنت':s?s.name:''):null).filter(x=>x!=null).join('، ');
