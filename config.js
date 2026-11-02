@@ -1,30 +1,47 @@
-/* =========================================================
-   كوت المجلس — ملف الإعدادات (منفصل عن اللعبة)
-   ---------------------------------------------------------
-   • عند تحديث اللعبة ارفع index.html و game.js و style.css فقط،
-     واترك هذا الملف كما هو حتى تبقى إعداداتك.
-   • قيم Firebase ليست سرية (تظهر في أي موقع يستخدمها)، والحماية
-     الحقيقية تكون بقواعد Firestore (ملف firestore.rules).
-   • إذا تركت apiKey فارغاً تعمل اللعبة، لكن الحسابات تُحفظ في
-     المتصفح فقط ولا يعمل نظام الأصدقاء.
-   ========================================================= */
-window.KOUT_CONFIG = {
-  firebase: {
-    apiKey: "AIzaSyBMGHjDZEIH47xPllexfNWv2oZs4o_DBCE",
-    authDomain: "kout-majlis.firebaseapp.com",
-    projectId: "kout-majlis",
-    storageBucket: "kout-majlis.firebasestorage.app",
-    messagingSenderId: "837101566744",
-    appId: "1:837101566744:web:92a8c560f960a8b8a23c6d"
-  },
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
 
-  /* اختياري: خادم TURN للشبكات الصعبة (بعض شبكات الشركات والجوال).
-     اللعب بين الدول يعمل بدونه في أغلب الحالات. مثال بعد التسجيل
-     المجاني في metered.ca أو أي مزوّد TURN:
-     iceServers: [
-       { urls: "turn:global.relay.metered.ca:80", username: "USER", credential: "PASS" },
-       { urls: "turn:global.relay.metered.ca:443?transport=tcp", username: "USER", credential: "PASS" }
-     ]
-  */
-  iceServers: []
-};
+    function signedIn() { return request.auth != null; }
+    function isFounder() {
+      return signedIn()
+        && request.auth.token.email == 'nv24142@ncst.edu.bh'
+        && request.auth.token.email_verified == true;
+    }
+
+    // الحساب الكامل (العملات، المشتريات، الأصدقاء) — صاحبه فقط
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // البطاقة العامة (الاسم، الشخصية، المستوى، رقم اللاعب، متصل/غير متصل)
+    match /profiles/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid;
+
+      // صندوق الرسائل: طلبات صداقة، دعوات، هدايا المؤسس، وإهداءات اللاعبين
+      match /inbox/{msg} {
+        allow read, delete: if signedIn() && request.auth.uid == uid;
+        allow create: if signedIn()
+          && request.resource.data.from == request.auth.uid
+          && (request.resource.data.t in ['req', 'acc', 'inv', 'del']
+              || (request.resource.data.t == 'gift' && isFounder())
+              || (request.resource.data.t == 'pgift'
+                  && request.resource.data.coins is int && request.resource.data.coins >= 0 && request.resource.data.coins <= 1000
+                  && request.resource.data.pearls is int && request.resource.data.pearls >= 0 && request.resource.data.pearls <= 10));
+      }
+    }
+
+    // الإعلانات: يقرأها الجميع، ويكتبها المؤسس فقط
+    match /meta/{doc} {
+      allow read: if true;
+      allow write: if isFounder();
+    }
+    match /rooms/{code} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.host == request.auth.uid;
+      allow update: if signedIn() && resource.data.host == request.auth.uid && request.resource.data.host == request.auth.uid;
+      allow delete: if signedIn() && resource.data.host == request.auth.uid;
+    }
+  }
+}
