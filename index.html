@@ -2603,7 +2603,7 @@ async function cloudLogin(user){
   if(snap.exists) a=fixAcc(snap.data());
   else { fresh=true; const pp=pendingSignup||{name:(user.email||'لاعب').split('@')[0].slice(0,14),col:0,img:'',ch:'fareej_elder'};
     a=newAccount(pp.name,pp.col,pp.img,'',pp.ch); a.email=user.email; if(pp.import) copyProgress(pp.import,a); }
-  a.id=user.uid; a.email=user.email; a.cloud=true; pendingSignup=null;
+  a.id=user.uid; a.email=user.email; a.cloud=true; pendingSignup=null; try{ localStorage.setItem('kout_last_email',user.email||''); }catch(e){}
   accounts[a.id]=a; save('kout_accounts',accounts); login(a.id);
   if(fresh){ cloudSave(true); welcome(a.name); }
   socialStart();
@@ -2790,7 +2790,8 @@ function showAuth(quiet){
   const sel=$('#upImport'); sel.textContent=''; $('#upImportWrap').hidden=!old.length;
   if(old.length){ const n=el('option',null,'لا، ابدأ من جديد'); n.value=''; sel.appendChild(n); for(const a of old){ const o=el('option',null,`${a.name} · المستوى ${levelOf(a.xp).l} · ${a.coins} عملة`); o.value=a.id; sel.appendChild(o); } sel.value=old[0].id; }
   renderAuthMode(); renderAn();
-  if(!Object.values(accounts).some(a=>a.email)&&old.length===0) setAuthTab('up');
+  /* الافتراضي: تسجيل الدخول، مع تعبئة آخر إيميل استُخدم على هذا الجهاز */
+  setAuthTab('in'); try{ const le=localStorage.getItem('kout_last_email'); if(le&&!$('#inEmail').value) $('#inEmail').value=le; }catch(e){}
 }
 /* الدخول كضيف: حساب على هذا الجهاز بدون إيميل، يُكمل نفس حساب الضيف كل مرة */
 $('#auGuest').onclick=()=>{
@@ -2821,7 +2822,8 @@ $('#auUp').addEventListener('submit',async e=>{
       accounts[a.id]=a; save('kout_accounts',accounts); login(a.id); welcome(name);
     }
     $('#anName').value=''; $('#upEmail').value=''; $('#upPass').value=''; anDraft={col:0,img:'',ch:'fareej_kid'};
-  }catch(err){ pendingSignup=null; toast(authErr(err),4000); }
+  }catch(err){ pendingSignup=null; toast(authErr(err),4000);
+    if(err&&err.code==='auth/email-already-in-use'){ setAuthTab('in'); $('#inEmail').value=email; setTimeout(()=>$('#inPass').focus(),50); } }
   busy(btn,false);
 });
 $('#auIn').addEventListener('submit',async e=>{
